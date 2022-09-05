@@ -33,6 +33,7 @@ class CM_graph_dataset(InMemoryDataset):
         with open(self.raw_paths[1], "r") as f:
             data_structure = json.load(f)
 
+        # Load and process CSV
         df = pd.read_csv(self.raw_paths[0])
         df["order"] = df["name"].str[7:].astype(int)
         df = df.sort_values(by="order")
@@ -66,6 +67,7 @@ class CM_graph_dataset(InMemoryDataset):
                     # Load ESM embeddings
                     esm = torch.load(f"data/esm_1b_embeddings/{name}.pt")
 
+                    # Construct PyG graph
                     data = Data(
                         x=x,
                         y=y,
@@ -127,6 +129,7 @@ class CM_msa_dataset(InMemoryDataset):
                 y = torch.tensor(
                     df.loc[df["name"] == sequence.id, "target_class"].values
                 ).float()
+                # Construct PyG graph
                 data = Data(x=x, y=y)
                 data_list.append(data)
 
@@ -135,5 +138,6 @@ class CM_msa_dataset(InMemoryDataset):
 
 
 if __name__ == "__main__":
+    # Instantiate datasets to force pre-processing
     d1 = CM_msa_dataset()
     d2 = CM_graph_dataset()

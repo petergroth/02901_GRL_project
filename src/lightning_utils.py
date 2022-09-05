@@ -9,10 +9,13 @@ from src.dataset import CM_graph_dataset, CM_msa_dataset
 from src.models import GAT, GCN, MLP
 
 
-class ProteinRegressor(pl.LightningModule):
+class ProteinClassifier(pl.LightningModule):
+    """LightningModule for classification of proteins."""
+
     def __init__(self, model_name: str, lr: float, **model_kwargs):
         super().__init__()
         self.save_hyperparameters()
+        # Instantiate appropriate models
         if model_name == "GCN":
             self.model = GCN(**model_kwargs)
         elif model_name == "GAT":
@@ -24,6 +27,7 @@ class ProteinRegressor(pl.LightningModule):
         self.lr = lr
 
     def training_step(self, batch, batch_idx):
+        # Forward pass and loss computation
         preds = self.model(batch)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(
             input=preds, target=batch.y
@@ -32,19 +36,21 @@ class ProteinRegressor(pl.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
+        # Compute predictions, BCE (for early stopping) and MCC
         preds = self.model(batch)
         bce_loss = torch.nn.functional.binary_cross_entropy_with_logits(
             input=preds, target=batch.y
         )
         preds = (torch.sigmoid(preds) > 0.5).long()
         target = batch.y.long()
-
         mcc = matthews_corrcoef(preds, target, num_classes=2)
+        # Log results
         self.log("val_bce", bce_loss, on_epoch=True, batch_size=batch.num_graphs)
         self.log("val_mcc", mcc, on_epoch=True, batch_size=batch.num_graphs)
         return mcc, bce_loss
 
     def test_step(self, batch, batch_idx):
+        # Compute predictions, BCE, and MCC
         preds = self.model(batch)
         bce_loss = torch.nn.functional.binary_cross_entropy_with_logits(
             input=preds, target=batch.y.float()
@@ -52,6 +58,7 @@ class ProteinRegressor(pl.LightningModule):
         preds = (torch.sigmoid(preds) > 0.5).long()
         target = batch.y.long()
         mcc = matthews_corrcoef(preds, target, num_classes=2)
+        # Log results
         self.log("test_bce", bce_loss, on_epoch=True, batch_size=batch.num_graphs)
         self.log("test_mcc", mcc, on_epoch=True, batch_size=batch.num_graphs)
 
@@ -61,6 +68,8 @@ class ProteinRegressor(pl.LightningModule):
 
 
 class CM_datamodule(pl.LightningDataModule):
+    """Lightning DataModule for the CM dataset"""
+
     def __init__(self, batch_size: int, input_type: str):
         super().__init__()
         self.batch_size = batch_size
@@ -68,6 +77,8 @@ class CM_datamodule(pl.LightningDataModule):
 
     def setup(self, stage=None):
         np.random.seed(0)
+
+        # Determine appropriate setup given the task
         if self.input_type == "graph":
             dataset = CM_graph_dataset()
         elif self.input_type == "msa":
@@ -75,6 +86,7 @@ class CM_datamodule(pl.LightningDataModule):
         else:
             raise ValueError
 
+        # Create random (yet reproducible) dataset split
         perm = np.random.permutation(len(dataset))
         n_train = int(len(dataset) * 0.5)
         n_val = int(len(dataset) * 0.25)

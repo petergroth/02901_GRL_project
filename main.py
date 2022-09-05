@@ -9,7 +9,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.loggers import CSVLogger
 
-from src.lightning_utils import CM_datamodule, ProteinRegressor
+from src.lightning_utils import CM_datamodule, ProteinClassifier
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -98,13 +98,15 @@ if __name__ == "__main__":
     else:
         raise ValueError
 
+    # Combine parameters
     model_kwargs["esm"] = esm
     model_kwargs["input_dim"] = input_dim
     dm_kwargs = {"batch_size": batch_size, "input_type": input_type}
 
     # Instantiations
-    regressor = ProteinRegressor(model_name=model_name, lr=lr, **model_kwargs)
+    regressor = ProteinClassifier(model_name=model_name, lr=lr, **model_kwargs)
     dm = CM_datamodule(**dm_kwargs)
+    # Setup logger, checkpointing, and early stopping
     logger = CSVLogger(save_dir="logs", name=str(setup))
     checkpoint_callback = ModelCheckpoint(
         monitor="val_bce", mode="min", verbose=True, filename="best"
@@ -112,13 +114,14 @@ if __name__ == "__main__":
     early_stop_callback = EarlyStopping(
         monitor="val_bce", patience=20, verbose=True, mode="min"
     )
-    # Trainer
+    # Instantiate trainer
     trainer = pl.Trainer(
         max_epochs=n_epochs,
         logger=logger,
         callbacks=[checkpoint_callback, early_stop_callback],
         log_every_n_steps=10,
     )
+    # Fit (train + validate) and test
     trainer.fit(model=regressor, datamodule=dm)
     trainer.test(
         model=regressor, datamodule=dm, ckpt_path=checkpoint_callback.best_model_path

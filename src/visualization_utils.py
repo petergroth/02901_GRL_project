@@ -88,8 +88,6 @@ def show_learning_curve(path: str):
 
 
 def main():
-    # path = "logs/lightning_logs/version_6"
-    # show_learning_curve(path)
     n_setups = 7
     seeds = np.zeros((n_setups * 3))
     test_mcc = np.zeros((n_setups * 3))
