@@ -1,12 +1,12 @@
 import torch
 from torch import nn
-from torch_geometric.nn import GATConv, GCNConv, global_mean_pool, knn_graph, GATv2Conv
+from torch_geometric.nn import GATConv, GCNConv, global_mean_pool
 from torch_geometric.utils import dropout_adj
 from torch_scatter import scatter_mean
 
 
 class GCN(torch.nn.Module):
-    """Simple convolutional GNN"""
+    """Convolutional GNN"""
 
     def __init__(
         self,
@@ -45,6 +45,8 @@ class GCN(torch.nn.Module):
 
 
 class GAT(torch.nn.Module):
+    """Attention GNN"""
+
     def __init__(
         self,
         input_dim: int,
@@ -54,7 +56,7 @@ class GAT(torch.nn.Module):
         heads: int = 4,
         esm: bool = False,
         edge_dropout: float = 0.0,
-        edge_dim: int = 0
+        edge_dim: int = 0,
     ):
         super(GAT, self).__init__()
 
@@ -64,7 +66,7 @@ class GAT(torch.nn.Module):
             heads=heads,
             concat=True,
             dropout=dropout,
-            edge_dim=edge_dim
+            edge_dim=edge_dim,
         )
         self.gat2 = GATConv(
             in_channels=hidden_dim * heads,
@@ -72,14 +74,14 @@ class GAT(torch.nn.Module):
             heads=heads,
             concat=True,
             dropout=dropout,
-            edge_dim=edge_dim
+            edge_dim=edge_dim,
         )
         self.gat3 = GATConv(
             in_channels=hidden_dim * heads,
             out_channels=hidden_dim,
             concat=False,
             dropout=dropout,
-            edge_dim=edge_dim
+            edge_dim=edge_dim,
         )
         self.linear = nn.Linear(in_features=hidden_dim, out_features=output_dim)
         self.act = torch.nn.ELU()
@@ -104,13 +106,8 @@ class GAT(torch.nn.Module):
         return x.squeeze()
 
 
-
-
-
-
-
 class MLP(torch.nn.Module):
-    """Simple MLP that acts on vector representation of entire graph"""
+    """Baseline MLP for fixed size inputs"""
 
     def __init__(
         self,
@@ -140,28 +137,3 @@ class MLP(torch.nn.Module):
             x = data.x
         x = self.mlp(x)
         return x.squeeze()
-
-
-if __name__ == "__main__":
-    from torch_geometric.loader import DataLoader
-
-    from src.dataset import CM_graph_dataset
-
-    dataset = CM_graph_dataset()
-    esm = True
-
-    model_kwargs = {
-        "input_dim": 20 if not esm else 1280,
-        "hidden_dim": 128,
-        "output_dim": 1,
-        "dropout": 0.2,
-        "esm": esm,
-    }
-
-    # model = GAT(**model_kwargs)
-    model = MLP(**model_kwargs)
-    loader = DataLoader(dataset, batch_size=10)
-
-    batch = next(iter(loader))
-
-    out = model(batch)

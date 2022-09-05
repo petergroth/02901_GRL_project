@@ -1,7 +1,5 @@
-import numpy as np
 import torch
-from torch_geometric.loader import DataLoader
-from torchmetrics.functional import matthews_corrcoef, auroc
+from torchmetrics.functional import matthews_corrcoef
 
 from src.lightning_utils import CM_datamodule
 
@@ -27,7 +25,7 @@ if __name__ == "__main__":
     test_batch = next(iter(test_loader))
     y_targets = test_batch.y
     # Predictions
-    y_preds = y_majority*torch.ones_like(y_targets)
+    y_preds = y_majority * torch.ones_like(y_targets)
 
     # Performance
     test_mcc = matthews_corrcoef(y_preds.long(), y_targets.long(), num_classes=2)

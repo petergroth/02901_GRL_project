@@ -135,5 +135,5 @@ class CM_msa_dataset(InMemoryDataset):
 
 
 if __name__ == "__main__":
-    d2 = CM_msa_dataset()
-    d3 = CM_graph_dataset()
+    d1 = CM_msa_dataset()
+    d2 = CM_graph_dataset()

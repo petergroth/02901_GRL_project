@@ -1,7 +1,7 @@
 import numpy as np
 import pytorch_lightning as pl
 import torch
-from torch import nn, optim
+from torch import optim
 from torch_geometric.loader import DataLoader
 from torchmetrics.functional import matthews_corrcoef
 

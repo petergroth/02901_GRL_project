@@ -1,12 +1,13 @@
 import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set_style("dark")
-from matplotlib import rc
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import yaml
-rc('font', **{'family': 'serif', 'serif': ['Times']})
-rc('text', usetex=True)
+from matplotlib import rc
+
+sns.set_style("dark")
+rc("font", **{"family": "serif", "serif": ["Times"]})
+rc("text", usetex=True)
 
 
 def show_histograms():
@@ -15,29 +16,45 @@ def show_histograms():
     fig, ax = plt.subplots(5, 1, figsize=(5, 14))
     plt.subplots_adjust(hspace=0.3)
     indicators = (0, 1, 2, 3, 4)
-    split_names = ("Wildtype", "bmDCA (T=0.33)", "bmDCA (T=0.66)", "bmDCA (T=1.0)", "Profile model")
+    split_names = (
+        "Wildtype",
+        "bmDCA (T=0.33)",
+        "bmDCA (T=0.66)",
+        "bmDCA (T=1.0)",
+        "Profile model",
+    )
     low, high = df["target_reg"].min(), df["target_reg"].max()
     for i, (indicator, split_name) in enumerate(zip(indicators, split_names)):
         axi = ax[i]
-        sns.histplot(data=df.loc[df["indicator"] == indicator], x="target_reg", ax=axi, bins=15, binrange=(low, high),
-                     color=colors[i])
+        sns.histplot(
+            data=df.loc[df["indicator"] == indicator],
+            x="target_reg",
+            ax=axi,
+            bins=15,
+            binrange=(low, high),
+            color=colors[i],
+        )
         axi.set_title(split_name)
         axi.set_xlabel("Normalized enzyme activity")
     plt.tight_layout()
     plt.savefig("figures/histogram.pdf")
     plt.show()
 
-
     fig, ax = plt.subplots(figsize=(5, 3))
-    sns.histplot(data=df.loc[df["indicator"].isin((0, 1, 2))], x="target_reg", ax=ax, bins=15, binrange=(low, high),
-                 color="#f58a00")
+    sns.histplot(
+        data=df.loc[df["indicator"].isin((0, 1, 2))],
+        x="target_reg",
+        ax=ax,
+        bins=15,
+        binrange=(low, high),
+        color="#f58a00",
+    )
     ax.set_title("Histogram over processed dataset")
     ax.set_xlabel("Normalized enzyme activity")
     ax.axvline(x=0.42, color="black", alpha=0.3, linestyle="--")
     plt.tight_layout()
     plt.savefig("figures/histogram_used.pdf")
     plt.show()
-
 
 
 def show_learning_curve(path: str):
@@ -89,18 +106,24 @@ def main():
             test_bce[k] = df.iloc[-1]["test_bce"]
             k += 1
 
-    df = pd.DataFrame({"seed": seeds, "setup": setups, "test_mcc": test_mcc, "test_bce": test_bce})
+    df = pd.DataFrame(
+        {"seed": seeds, "setup": setups, "test_mcc": test_mcc, "test_bce": test_bce}
+    )
 
-    df["setup"] = df["setup"].astype(int).replace(
-        {
-            0: "MLP (MSA)",
-            1: "MLP (ESM)",
-            2: "GAT (1-of-k)",
-            3: "GAT (ESM)",
-            4: "GCN (1-of-k)",
-            5: "GCN (ESM)",
-            6: "GAT (ESM, edges)"
-        }
+    df["setup"] = (
+        df["setup"]
+        .astype(int)
+        .replace(
+            {
+                0: "MLP (MSA)",
+                1: "MLP (ESM)",
+                2: "GAT (1-of-k)",
+                3: "GAT (ESM)",
+                4: "GCN (1-of-k)",
+                5: "GCN (ESM)",
+                6: "GAT (ESM, edges)",
+            }
+        )
     )
 
     order_dict = {
@@ -119,27 +142,40 @@ def main():
     for i in range(3):
         palette.append(extra_col[i])
 
-
     best_val = df.loc[df["setup"] == "GAT (ESM, edges)", "test_mcc"].agg("mean")
 
     fig, ax = plt.subplots(figsize=(5, 5))
-    sns.barplot(data=df, x="setup", y="test_mcc", ax=ax, palette=palette, capsize=0.3,
-                errwidth=1)
+    sns.barplot(
+        data=df,
+        x="setup",
+        y="test_mcc",
+        ax=ax,
+        palette=palette,
+        capsize=0.3,
+        errwidth=1,
+    )
     ax.set_ylabel("Matthews correlation coefficient")
     ax.set_xlabel("")
     ax.axhline(y=best_val, color="black", alpha=0.2, linestyle="--")
-    ax.tick_params(axis='x', labelrotation=45)
+    ax.tick_params(axis="x", labelrotation=45)
 
     plt.tight_layout()
     plt.savefig("figures/results_mcc.pdf")
     plt.show()
 
     fig, ax = plt.subplots(figsize=(5, 5))
-    sns.barplot(data=df, x="setup", y="test_bce", ax=ax, palette=palette, capsize=0.3,
-                errwidth=1)
+    sns.barplot(
+        data=df,
+        x="setup",
+        y="test_bce",
+        ax=ax,
+        palette=palette,
+        capsize=0.3,
+        errwidth=1,
+    )
     ax.set_ylabel("Binary cross-entropy")
     ax.set_xlabel("")
-    ax.tick_params(axis='x', labelrotation=45)
+    ax.tick_params(axis="x", labelrotation=45)
 
     plt.tight_layout()
     plt.savefig("figures/results_bce.pdf")
@@ -148,5 +184,5 @@ def main():
 
 
 if __name__ == "__main__":
-   main()
-   # show_histograms()
+    main()
+    # show_histograms()
