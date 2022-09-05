@@ -24,7 +24,7 @@ def show_histograms():
         axi.set_title(split_name)
         axi.set_xlabel("Normalized enzyme activity")
     plt.tight_layout()
-    plt.savefig("report/graphics/histogram.pdf")
+    plt.savefig("figures/histogram.pdf")
     plt.show()
 
 
@@ -35,7 +35,7 @@ def show_histograms():
     ax.set_xlabel("Normalized enzyme activity")
     ax.axvline(x=0.42, color="black", alpha=0.3, linestyle="--")
     plt.tight_layout()
-    plt.savefig("report/graphics/histogram_used.pdf")
+    plt.savefig("figures/histogram_used.pdf")
     plt.show()
 
 
@@ -120,7 +120,7 @@ def main():
         palette.append(extra_col[i])
 
 
-    best_val = df.loc[df["setup"] == "GAT (ESM)", "test_mcc"].agg("mean")
+    best_val = df.loc[df["setup"] == "GAT (ESM, edges)", "test_mcc"].agg("mean")
 
     fig, ax = plt.subplots(figsize=(5, 5))
     sns.barplot(data=df, x="setup", y="test_mcc", ax=ax, palette=palette, capsize=0.3,
@@ -131,7 +131,7 @@ def main():
     ax.tick_params(axis='x', labelrotation=45)
 
     plt.tight_layout()
-    plt.savefig("report/graphics/results_mcc.pdf")
+    plt.savefig("figures/results_mcc.pdf")
     plt.show()
 
     fig, ax = plt.subplots(figsize=(5, 5))
@@ -142,7 +142,7 @@ def main():
     ax.tick_params(axis='x', labelrotation=45)
 
     plt.tight_layout()
-    plt.savefig("report/graphics/results_bce.pdf")
+    plt.savefig("figures/results_bce.pdf")
 
     plt.show()
 
