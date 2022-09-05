@@ -1,0 +1,6 @@
+data/
+report/
+train_models.sh
+.idea/
+.DS_Store
+*.ckpt

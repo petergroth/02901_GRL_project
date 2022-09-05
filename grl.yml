@@ -1,0 +1,29 @@
+name: grl_project
+channels:
+  - pytorch
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pytorch
+  - torchvision
+  - torchaudio
+  - torchmetrics
+  - pytorch-lightning
+  - pyyaml
+  - setuptools
+  - scipy
+  - scikit-learn
+  - pytest
+  - networkx
+  - numpy
+  - pandas
+  - seaborn
+  - matplotlib
+  - ipython
+  - tqdm
+  - scikit-learn
+  - flake8
+  - isort
+  - black
+  - pip

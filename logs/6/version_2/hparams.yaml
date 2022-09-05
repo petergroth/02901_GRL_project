@@ -1,0 +1,10 @@
+dropout: 0.2
+edge_dim: 1
+edge_dropout: 0.1
+esm: true
+heads: 4
+hidden_dim: 512
+input_dim: 1280
+lr: 0.0003
+model_name: GAT
+output_dim: 1

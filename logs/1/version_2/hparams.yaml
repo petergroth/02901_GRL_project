@@ -1,0 +1,7 @@
+dropout: 0.2
+esm: true
+hidden_dim: 512
+input_dim: 1280
+lr: 0.0003
+model_name: MLP
+output_dim: 1

@@ -1,0 +1,8 @@
+dropout: 0.2
+edge_dropout: 0.0
+esm: true
+hidden_dim: 1024
+input_dim: 1280
+lr: 0.0003
+model_name: GCN
+output_dim: 1
